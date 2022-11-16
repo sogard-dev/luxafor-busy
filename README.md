@@ -1,5 +1,5 @@
 # luxafor-busy
-USB controller for Luxafor Flag busylight
+USB controller for Luxafor Flag busylight (https://luxafor.com/product/flag/)
 
 Usage: <EXE> <COLOR>
   
