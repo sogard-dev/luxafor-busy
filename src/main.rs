@@ -9,21 +9,26 @@ const USB_IN: u8 = 0x81;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let query = &args[1];
+    if args.len() < 2 {
+        println!("1 argument expected, one of: red, green, yellow or blue");
+        return;
+    }
+
+    let query = &args[1][..];
 
     let mut device = rusb::open_device_with_vid_pid(VID, PID).unwrap();
     let iface: u8 = 0;
 
     device.claim_interface(iface).unwrap();
 
-    if query.eq("red") {
-        switch_to_red(&mut device);
-    } else if query.eq("green") {
-        switch_to_green(&mut device);
-    } else if query.eq("yellow") {
-        switch_to_yellow(&mut device);
-    } else if query.eq("blue") {
-        switch_to_blue(&mut device);
+    match query {
+        "red" => switch_to_red(&mut device),
+        "green" => switch_to_green(&mut device),
+        "yellow" => switch_to_yellow(&mut device),
+        "blue" => switch_to_blue(&mut device),
+        _ => {
+            println!("Argument '{}' not supported", query);
+        }
     }
 
     device.release_interface(iface).unwrap();
@@ -64,8 +69,6 @@ fn read_from_device(device: &mut DeviceHandle<GlobalContext>) {
     device
         .read_interrupt(USB_IN, &mut rbuf, std::time::Duration::from_millis(500))
         .unwrap();
-
-    //println!("{:x}", ByteBuf(&rbuf));
 }
 
 fn get_green_message() -> [u8; 8] {
@@ -93,7 +96,6 @@ fn get_yellow_message() -> [u8; 8] {
     let mut buf = get_color_message();
     buf[2] = 0x80;
     buf[3] = 0x80;
-
 
     buf
 }
